@@ -1,120 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>sześciokat</title>
-    <style>
-        #canvas {
-            width: 400px;
-            height: 400px;
-        }
-    </style>
+  <title>Zmiana koloru figury</title>
+  <style>
+    #canvas {
+      border: 1px solid black;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
-    <script>
-        const vertexShaderTxt = `
-        precision mediump float;
+  <button id="colorButton">Zmień kolor</button>
+  <canvas id="canvas" width="400" height="400"></canvas>
 
-        attribute vec2 vertPosition;
-        attribute vec3 vertColor;
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var canvas = document.getElementById("canvas");
+      var context = canvas.getContext("2d");
+      var colorButton = document.getElementById("colorButton");
+      var triangleColor = "red";
 
-        varying vec3 fragColor;
+      function drawTriangle() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-        void main()
-        {
-            fragColor = vertColor;
-            gl_Position = vec4(vertPosition, 0.0, 1.0);
-        }
-        `;
+        context.beginPath();
+        context.moveTo(200, 50);
+        context.lineTo(350, 350);
+        context.lineTo(50, 350);
+        context.closePath();
 
-        const fragmentShaderTxt = `
-        precision mediump float;
+        context.fillStyle = triangleColor;
+        context.fill();
+      }
 
-        varying vec3 fragColor;
+      drawTriangle();
 
-        void main() {
-            gl_FragColor = vec4(fragColor, 1.0);
-        }
-        `;
+      colorButton.addEventListener("click", function() {
+        var randomColor = "rgb(" + getRandomNumber() + ", " + getRandomNumber() + ", " + getRandomNumber() + ")";
 
-        const canvas = document.getElementById("canvas");
-        const gl = canvas.getContext("webgl");
+        triangleColor = randomColor;
 
-        if (!gl) {
-            alert("WebGL not supported.");
-        }
+        drawTriangle();
+      });
 
-        gl.clearColor(0.5, 0.5, 0.9, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-        gl.shaderSource(vertexShader, vertexShaderTxt);
-        gl.shaderSource(fragmentShader, fragmentShaderTxt);
-
-        gl.compileShader(vertexShader);
-        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-            console.log(gl.getShaderInfoLog(vertexShader));
-        }
-        gl.compileShader(fragmentShader);
-        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-            console.log(gl.getShaderInfoLog(fragmentShader));
-        }
-
-        const program = gl.createProgram();
-
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-
-        gl.detachShader(program, vertexShader);
-        gl.detachShader(program, fragmentShader);
-
-        gl.validateProgram(program);
-
-        const vertices = [
-            0.0, 0.0, 1.0, 0.0, 0.0,
-            -0.25, 0.43, 1.0, 0.0, 0.0,
-            0.25, 0.43, 1.0, 0.0, 0.0,
-            0.5, 0.0, 1.0, 0.0, 0.0,
-            0.25, -0.43, 1.0, 0.0, 0.0,
-            -0.25, -0.43,1.0, 0.0, 0.0,
-            -0.5, 0.0, 1.0, 0.0, 0.0,
-            -0.25, 0.43, 1.0, 0.0, 0.0,
-        ];
-
-        const vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-        const positionAttributeLocation = gl.getAttribLocation(program, "vertPosition");
-        const colorAttributeLocation = gl.getAttribLocation(program, "vertColor");
-
-        gl.vertexAttribPointer(
-            positionAttributeLocation,
-            2,
-            gl.FLOAT,
-            false,
-            5 * Float32Array.BYTES_PER_ELEMENT,
-            0
-        );
-
-        gl.vertexAttribPointer(
-            colorAttributeLocation,
-            3,
-            gl.FLOAT,
-            false,
-            5 * Float32Array.BYTES_PER_ELEMENT,
-            2 * Float32Array.BYTES_PER_ELEMENT
-        );
-
-        gl.enableVertexAttribArray(positionAttributeLocation);
-        gl.enableVertexAttribArray(colorAttributeLocation);
-
-        gl.useProgram(program);
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, 8);
-    </script>
+      function getRandomNumber() {
+        return Math.floor(Math.random() * 256);
+      }
+    });
+  </script>
 </body>
 </html>
